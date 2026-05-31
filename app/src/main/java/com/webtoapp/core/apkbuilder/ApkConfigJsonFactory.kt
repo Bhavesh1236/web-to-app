@@ -194,6 +194,7 @@ internal object ApkConfigJsonFactory {
         "kernelDisguiseLevel" to webViewBehavior.kernelDisguiseLevel,
         "enableImageRepair" to webViewBehavior.enableImageRepair,
         "enableScrollMemory" to webViewBehavior.enableScrollMemory,
+        "followSystemDarkMode" to webViewBehavior.followSystemDarkMode,
         "enableClipboardPolyfill" to webViewBehavior.enableClipboardPolyfill,
         "enableNotificationPolyfill" to webViewBehavior.enableNotificationPolyfill,
         "geolocationEnabled" to webViewBehavior.geolocationEnabled,

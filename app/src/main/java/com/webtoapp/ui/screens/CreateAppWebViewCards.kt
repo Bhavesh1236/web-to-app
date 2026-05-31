@@ -2434,6 +2434,14 @@ fun SpecialSettingsCard(
                             )
                             WtaSectionDivider()
                             WtaToggleRow(
+                                title = Strings.followSystemDarkModeTitle,
+                                subtitle = Strings.followSystemDarkModeDesc,
+                                icon = Icons.Outlined.DarkMode,
+                                checked = config.followSystemDarkMode,
+                                onCheckedChange = { onConfigChange(config.copy(followSystemDarkMode = it)) }
+                            )
+                            WtaSectionDivider()
+                            WtaToggleRow(
                                 title = Strings.cookiePersistenceTitle,
                                 subtitle = Strings.cookiePersistenceDesc,
                                 icon = Icons.Outlined.Save,

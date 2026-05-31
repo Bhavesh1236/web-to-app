@@ -1113,6 +1113,9 @@ data class WebViewShellConfig(
     @SerializedName("enableScrollMemory")
     val enableScrollMemory: Boolean = false,
 
+    @SerializedName("followSystemDarkMode")
+    val followSystemDarkMode: Boolean = false,
+
     @SerializedName("enableClipboardPolyfill")
     val enableClipboardPolyfill: Boolean = false,
 

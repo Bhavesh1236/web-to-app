@@ -276,6 +276,7 @@ data class WebViewConfig(
     val statusBarBackgroundTypeDark: StatusBarBackgroundType = StatusBarBackgroundType.COLOR,
     val statusBarBackgroundImageDark: String? = null,
     val statusBarBackgroundAlphaDark: Float = 1.0f,
+    val followSystemDarkMode: Boolean = false,
     val longPressMenuEnabled: Boolean = false,
     val longPressMenuStyle: LongPressMenuStyle = LongPressMenuStyle.DISABLED,
     val adBlockToggleEnabled: Boolean = false,

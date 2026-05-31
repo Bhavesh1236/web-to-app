@@ -34950,6 +34950,17 @@ object Strings {
         AppLanguage.ARABIC -> "تذكر موضع التمرير واستعادته عند العودة. قد يتعارض مع تطبيقات SPA التي تدير التمرير بنفسها؛ أوقفه عند الحاجة."
     }
 
+    val followSystemDarkModeTitle: String get() = when (lang) {
+        AppLanguage.CHINESE -> "网页跟随系统深色"
+        AppLanguage.ENGLISH -> "Web Page Follows System Dark Mode"
+        AppLanguage.ARABIC -> "تتبع صفحة الويب الوضع الداكن للنظام"
+    }
+    val followSystemDarkModeDesc: String get() = when (lang) {
+        AppLanguage.CHINESE -> "开启后，网页随系统深色/浅色主题自动切换：适配了 prefers-color-scheme 的站点会跟随，未适配的站点由内核算法自动反色。仅部分内核支持，不支持时静默忽略。"
+        AppLanguage.ENGLISH -> "When enabled, web pages follow the system light/dark theme: sites that support prefers-color-scheme switch automatically, and non-adapted sites are darkened by the engine's algorithm. Only some engines support this; silently ignored when unsupported."
+        AppLanguage.ARABIC -> "عند التفعيل، تتبع صفحات الويب سمة النظام الفاتحة/الداكنة: المواقع التي تدعم prefers-color-scheme تتبدّل تلقائيًا، والمواقع غير المهيأة يعتّمها المحرك خوارزميًا. يدعمه بعض المحركات فقط، ويُتجاهَل بصمت عند عدم الدعم."
+    }
+
     val clipboardPolyfillTitle: String get() = when (lang) {
         AppLanguage.CHINESE -> "剪贴板 API 桥接"
         AppLanguage.ENGLISH -> "Clipboard API Bridge"

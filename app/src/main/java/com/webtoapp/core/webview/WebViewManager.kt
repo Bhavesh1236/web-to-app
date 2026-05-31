@@ -1350,6 +1350,11 @@ class WebViewManager(
                 allowFileAccessFromFileURLs = config.allowFileAccessFromFileURLs
                 allowUniversalAccessFromFileURLs = config.allowUniversalAccessFromFileURLs
 
+                if (config.followSystemDarkMode && WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+                    WebSettingsCompat.setAlgorithmicDarkeningAllowed(this, true)
+                    AppLogger.d("WebViewManager", "Algorithmic darkening allowed (follow system dark mode)")
+                }
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
                 }

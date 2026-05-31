@@ -3000,6 +3000,7 @@ private fun WebApp.buildWebViewBehaviorBlock(): WebViewBehaviorBlock = WebViewBe
     kernelDisguiseLevel = webViewConfig.kernelDisguiseLevel.name,
     enableImageRepair = webViewConfig.enableImageRepair,
     enableScrollMemory = webViewConfig.enableScrollMemory,
+    followSystemDarkMode = webViewConfig.followSystemDarkMode,
     enableClipboardPolyfill = webViewConfig.enableClipboardPolyfill,
     enableNotificationPolyfill = webViewConfig.enableNotificationPolyfill,
     geolocationEnabled = webViewConfig.geolocationEnabled,

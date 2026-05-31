@@ -93,6 +93,7 @@ fun buildWebViewConfig(config: ShellConfig): WebViewConfig {
         } catch (e: Exception) { com.webtoapp.data.model.KernelDisguiseLevel.STANDARD },
         enableImageRepair = config.webViewConfig.enableImageRepair,
         enableScrollMemory = config.webViewConfig.enableScrollMemory,
+        followSystemDarkMode = config.webViewConfig.followSystemDarkMode,
         enableClipboardPolyfill = config.webViewConfig.enableClipboardPolyfill,
         enableNotificationPolyfill = config.webViewConfig.enableNotificationPolyfill,
         geolocationEnabled = config.webViewConfig.geolocationEnabled,
