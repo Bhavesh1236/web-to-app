@@ -979,6 +979,13 @@ fun CreateHtmlAppScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                            if (!esbuildAvailable) {
+                                Text(
+                                    text = Strings.optimizeJsSkippedNoEsbuild,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
                         }
                         WtaSwitch(
                             checked = enableOptimize,

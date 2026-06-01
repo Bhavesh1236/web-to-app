@@ -27303,6 +27303,11 @@ object Strings {
         AppLanguage.ENGLISH -> "Minify JS/CSS, compile TypeScript to reduce app size"
         AppLanguage.ARABIC -> "ضغط JS/CSS وتجميع TypeScript لتقليل حجم التطبيق"
     }
+    val optimizeJsSkippedNoEsbuild: String get() = when (lang) {
+        AppLanguage.CHINESE -> "未安装 esbuild 运行时，JS 压缩已跳过（避免压坏代码）；仅压缩 CSS/图片"
+        AppLanguage.ENGLISH -> "esbuild runtime not installed; JS minification skipped (avoids corrupting code), only CSS/images are optimized"
+        AppLanguage.ARABIC -> "وقت تشغيل esbuild غير مثبت؛ تم تخطّي ضغط JS (لتجنّب إفساد الكود)، ويتم تحسين CSS/الصور فقط"
+    }
     val optimizing: String get() = when (lang) {
         AppLanguage.CHINESE -> "优化中..."
         AppLanguage.ENGLISH -> "Optimizing..."
