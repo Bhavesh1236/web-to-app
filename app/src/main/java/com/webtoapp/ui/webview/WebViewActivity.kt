@@ -142,8 +142,9 @@ class WebViewActivity : AppCompatActivity() {
         colorMode: com.webtoapp.data.model.StatusBarColorMode,
         customColor: String?,
         darkIcons: Boolean?,
-        isDarkTheme: Boolean
-    ) = WindowHelper.applyStatusBarColor(this, colorMode.name, customColor, darkIcons, isDarkTheme)
+        isDarkTheme: Boolean,
+        backgroundAlpha: Float = 1f
+    ) = WindowHelper.applyStatusBarColor(this, colorMode.name, customColor, darkIcons, isDarkTheme, backgroundAlpha)
 
     private fun applyImmersiveFullscreen(enabled: Boolean, hideNavBar: Boolean? = null, isDarkTheme: Boolean = false) {
         val shouldHideNavBar = hideNavBar ?: !showNavigationBarInFullscreen

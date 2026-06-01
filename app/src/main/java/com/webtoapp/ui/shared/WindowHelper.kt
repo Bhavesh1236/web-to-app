@@ -21,9 +21,11 @@ object WindowHelper {
         colorMode: String,
         customColor: String?,
         darkIcons: Boolean?,
-        isDarkTheme: Boolean
+        isDarkTheme: Boolean,
+        backgroundAlpha: Float = 1f
     ) {
         val controller = WindowInsetsControllerCompat(activity.window, activity.window.decorView)
+        val alpha = backgroundAlpha.coerceIn(0f, 1f)
 
         when (colorMode) {
             "TRANSPARENT" -> {
@@ -32,27 +34,39 @@ object WindowHelper {
                 controller.isAppearanceLightStatusBars = useDarkIcons
             }
             "CUSTOM" -> {
-                val color = try {
+                val baseColor = try {
                     android.graphics.Color.parseColor(customColor ?: "#FFFFFF")
                 } catch (e: Exception) {
                     android.graphics.Color.WHITE
                 }
-                activity.window.statusBarColor = color
-                val useDarkIcons = darkIcons ?: isColorLight(color)
+                activity.window.statusBarColor = applyAlpha(baseColor, alpha)
+                val useDarkIcons = darkIcons ?: isColorLight(baseColor)
                 controller.isAppearanceLightStatusBars = useDarkIcons
             }
             else -> {
                 if (isDarkTheme) {
-                    activity.window.statusBarColor = android.graphics.Color.parseColor("#1C1B1F")
+                    val base = android.graphics.Color.parseColor("#1C1B1F")
+                    activity.window.statusBarColor = applyAlpha(base, alpha)
                     controller.isAppearanceLightStatusBars = false
                 } else {
-                    activity.window.statusBarColor = android.graphics.Color.parseColor("#FFFBFE")
+                    val base = android.graphics.Color.parseColor("#FFFBFE")
+                    activity.window.statusBarColor = applyAlpha(base, alpha)
                     controller.isAppearanceLightStatusBars = true
                 }
             }
         }
 
         controller.isAppearanceLightNavigationBars = controller.isAppearanceLightStatusBars
+    }
+
+    private fun applyAlpha(color: Int, alpha: Float): Int {
+        val a = (alpha.coerceIn(0f, 1f) * 255f + 0.5f).toInt()
+        return android.graphics.Color.argb(
+            a,
+            android.graphics.Color.red(color),
+            android.graphics.Color.green(color),
+            android.graphics.Color.blue(color)
+        )
     }
 
     fun isColorLight(color: Int): Boolean {

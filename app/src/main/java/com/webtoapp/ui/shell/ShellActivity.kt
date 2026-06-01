@@ -72,8 +72,9 @@ class ShellActivity : AppCompatActivity() {
         colorMode: String,
         customColor: String?,
         darkIcons: Boolean?,
-        isDarkTheme: Boolean
-    ) = WindowHelper.applyStatusBarColor(this, colorMode, customColor, darkIcons, isDarkTheme)
+        isDarkTheme: Boolean,
+        backgroundAlpha: Float = 1f
+    ) = WindowHelper.applyStatusBarColor(this, colorMode, customColor, darkIcons, isDarkTheme, backgroundAlpha)
 
     private fun applyImmersiveFullscreen(enabled: Boolean, hideNavBar: Boolean? = null, isDarkTheme: Boolean = false) {
         val shouldHideNavBar = hideNavBar ?: !showNavigationBarInFullscreen
@@ -376,7 +377,8 @@ class ShellActivity : AppCompatActivity() {
                         val effectiveColorMode = if (isDarkTheme) statusBarColorModeDark else statusBarColorMode
                         val effectiveCustomColor = if (isDarkTheme) statusBarCustomColorDark else statusBarCustomColor
                         val effectiveDarkIcons = if (isDarkTheme) statusBarDarkIconsDark else statusBarDarkIcons
-                        applyStatusBarColor(effectiveColorMode, effectiveCustomColor, effectiveDarkIcons, isDarkTheme)
+                        val effectiveAlpha = if (isDarkTheme) statusBarBackgroundAlphaDark else statusBarBackgroundAlpha
+                        applyStatusBarColor(effectiveColorMode, effectiveCustomColor, effectiveDarkIcons, isDarkTheme, effectiveAlpha)
                     }
                 }
 
@@ -550,7 +552,8 @@ class ShellActivity : AppCompatActivity() {
                 val effectiveColorMode = if (currentIsDarkTheme) statusBarColorModeDark else statusBarColorMode
                 val effectiveCustomColor = if (currentIsDarkTheme) statusBarCustomColorDark else statusBarCustomColor
                 val effectiveDarkIcons = if (currentIsDarkTheme) statusBarDarkIconsDark else statusBarDarkIcons
-                applyStatusBarColor(effectiveColorMode, effectiveCustomColor, effectiveDarkIcons, currentIsDarkTheme)
+                val effectiveAlpha = if (currentIsDarkTheme) statusBarBackgroundAlphaDark else statusBarBackgroundAlpha
+                applyStatusBarColor(effectiveColorMode, effectiveCustomColor, effectiveDarkIcons, currentIsDarkTheme, effectiveAlpha)
             }
         }
     }
