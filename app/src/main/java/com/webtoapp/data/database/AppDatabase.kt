@@ -19,7 +19,7 @@ import com.webtoapp.core.stats.AppUsageStatsDao
 
 @Database(
     entities = [WebApp::class, AppCategory::class, AppUsageStats::class, AppHealthRecord::class],
-    version = 36,
+    version = 37,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -534,6 +534,94 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_36_37_COLUMNS = """
+            id, name, url, iconPath, packageName, appType,
+            mediaConfig, galleryConfig, htmlConfig,
+            wordpressConfig, nodejsConfig, phpAppConfig, pythonAppConfig, goAppConfig, multiWebConfig,
+            activationEnabled, activationCodeList, activationRequireEveryTime, isActivated,
+            adsEnabled, adConfig,
+            announcementEnabled, announcement,
+            adBlockEnabled, adBlockRules,
+            webViewConfig,
+            splashEnabled, splashConfig,
+            bgmEnabled, bgmConfig,
+            apkExportConfig, themeType,
+            translateEnabled, translateConfig,
+            extensionEnabled, extensionModuleIds, extensionFabIcon,
+            autoStartConfig, forcedRunConfig,
+            blackTechConfig, disguiseConfig, browserDisguiseConfig, deviceDisguiseConfig,
+            activationDialogConfig,
+            categoryId, createdAt, updatedAt
+        """.trimIndent()
+
+        private val MIGRATION_36_37 = object : Migration(36, 37) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                AppLogger.i("AppDatabase", "Migration 36->37: dropping dead activationCodes column")
+                rebuildWebAppsTable(
+                    db = db,
+                    createTableSql = """
+                        CREATE TABLE IF NOT EXISTS web_apps_new (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                            name TEXT NOT NULL,
+                            url TEXT NOT NULL,
+                            iconPath TEXT,
+                            packageName TEXT,
+                            appType TEXT NOT NULL DEFAULT 'WEB',
+                            mediaConfig TEXT,
+                            galleryConfig TEXT,
+                            htmlConfig TEXT,
+                            wordpressConfig TEXT,
+                            nodejsConfig TEXT,
+                            phpAppConfig TEXT,
+                            pythonAppConfig TEXT,
+                            goAppConfig TEXT,
+                            multiWebConfig TEXT,
+                            activationEnabled INTEGER NOT NULL DEFAULT 0,
+                            activationCodeList TEXT NOT NULL DEFAULT '[]',
+                            activationRequireEveryTime INTEGER NOT NULL DEFAULT 0,
+                            isActivated INTEGER NOT NULL DEFAULT 0,
+                            adsEnabled INTEGER NOT NULL DEFAULT 0,
+                            adConfig TEXT,
+                            announcementEnabled INTEGER NOT NULL DEFAULT 0,
+                            announcement TEXT,
+                            adBlockEnabled INTEGER NOT NULL DEFAULT 0,
+                            adBlockRules TEXT NOT NULL DEFAULT '[]',
+                            webViewConfig TEXT NOT NULL,
+                            splashEnabled INTEGER NOT NULL DEFAULT 0,
+                            splashConfig TEXT,
+                            bgmEnabled INTEGER NOT NULL DEFAULT 0,
+                            bgmConfig TEXT,
+                            apkExportConfig TEXT,
+                            themeType TEXT NOT NULL DEFAULT 'AURORA',
+                            translateEnabled INTEGER NOT NULL DEFAULT 0,
+                            translateConfig TEXT,
+                            extensionEnabled INTEGER NOT NULL DEFAULT 0,
+                            extensionModuleIds TEXT NOT NULL DEFAULT '[]',
+                            extensionFabIcon TEXT,
+                            autoStartConfig TEXT,
+                            forcedRunConfig TEXT,
+                            blackTechConfig TEXT,
+                            disguiseConfig TEXT,
+                            browserDisguiseConfig TEXT,
+                            deviceDisguiseConfig TEXT,
+                            activationDialogConfig TEXT,
+                            categoryId INTEGER,
+                            createdAt INTEGER NOT NULL DEFAULT 0,
+                            updatedAt INTEGER NOT NULL DEFAULT 0
+                        )
+                    """.trimIndent(),
+                    columnNames = MIGRATION_36_37_COLUMNS,
+                    postSql = listOf(
+                        "CREATE INDEX IF NOT EXISTS index_web_apps_updatedAt ON web_apps(updatedAt)",
+                        "CREATE INDEX IF NOT EXISTS index_web_apps_categoryId ON web_apps(categoryId)",
+                        "CREATE INDEX IF NOT EXISTS index_web_apps_isActivated ON web_apps(isActivated)",
+                        "CREATE INDEX IF NOT EXISTS index_web_apps_appType_url ON web_apps(appType, url)",
+                        "CREATE INDEX IF NOT EXISTS index_web_apps_appType_iconPath_url ON web_apps(appType, iconPath, url)"
+                    )
+                )
+            }
+        }
+
         private val MIGRATION_27_28_COLUMNS = """
             id, name, url, iconPath, packageName, appType,
             mediaConfig, galleryConfig, htmlConfig,
@@ -688,7 +776,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_32_33,
                     MIGRATION_33_34,
                     MIGRATION_34_35,
-                    MIGRATION_35_36
+                    MIGRATION_35_36,
+                    MIGRATION_36_37
                 )
                 .fallbackToDestructiveMigrationOnDowngrade()
                 .fallbackToDestructiveMigrationFrom(1, 2, 3, 4, 5, 6, 7)

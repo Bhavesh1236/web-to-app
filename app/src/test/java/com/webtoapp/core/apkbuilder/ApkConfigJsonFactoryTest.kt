@@ -223,7 +223,11 @@ class ApkConfigJsonFactoryTest {
                 versionCode = 99,
                 versionName = "9.9.9"
             ),
-            activation = ActivationBlock(codes = listOf("SECRET-CODE")),
+            activation = ActivationBlock(
+                enabled = true,
+                requireEveryTime = true,
+                codes = listOf("SECRET-CODE")
+            ),
             webView = WebViewBlock(customUserAgent = "SensitiveAgent/1.0")
         )
 
@@ -237,6 +241,9 @@ class ApkConfigJsonFactoryTest {
         assertThat(root.get("appType").asString).isEmpty()
         assertThat(root.get("versionCode").asInt).isEqualTo(0)
         assertThat(root.get("versionName").asString).isEmpty()
+        assertThat(root.get("activationEnabled").asBoolean).isTrue()
+        assertThat(root.get("activationRequireEveryTime").asBoolean).isTrue()
+        assertThat(root.has("activationCodes")).isFalse()
         assertThat(root.getAsJsonObject("webViewConfig").entrySet()).isEmpty()
         assertThat(json).doesNotContain("secret.example.com")
         assertThat(json).doesNotContain("SECRET-CODE")

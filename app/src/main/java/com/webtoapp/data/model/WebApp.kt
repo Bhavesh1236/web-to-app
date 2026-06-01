@@ -54,7 +54,6 @@ data class WebApp(
     val multiWebConfig: MultiWebConfig? = null,
 
     val activationEnabled: Boolean = false,
-    val activationCodes: List<String> = emptyList(),
     val activationCodeList: List<com.webtoapp.core.activation.ActivationCode> = emptyList(),
     val activationRequireEveryTime: Boolean = false,
     val isActivated: Boolean = false,

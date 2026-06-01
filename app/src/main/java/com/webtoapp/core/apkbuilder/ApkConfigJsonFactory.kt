@@ -120,6 +120,8 @@ internal object ApkConfigJsonFactory {
         "appType" to "",
         "versionCode" to 0,
         "versionName" to "",
+        "activationEnabled" to activation.enabled,
+        "activationRequireEveryTime" to activation.requireEveryTime,
         "webViewConfig" to emptyMap<String, Any?>()
     )
 

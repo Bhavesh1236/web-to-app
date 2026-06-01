@@ -55,16 +55,12 @@ class WebAppModelTest {
     }
 
     @Test
-    fun `getAllActivationCodes returns only new activation code list`() {
+    fun `getAllActivationCodes returns activation code list`() {
         val webApp = WebApp(
             name = "Demo",
             url = "https://example.com",
             activationCodeList = listOf(
                 ActivationCode(code = "NEW", type = ActivationCodeType.PERMANENT)
-            ),
-            activationCodes = listOf(
-                "OLD",
-                """{"code":"JSON","type":"USAGE_LIMITED","usageLimit":3}"""
             )
         )
 
@@ -75,16 +71,12 @@ class WebAppModelTest {
     }
 
     @Test
-    fun `getActivationCodeStrings serializes only new activation code list`() {
+    fun `getActivationCodeStrings serializes activation code list`() {
         val webApp = WebApp(
             name = "Demo",
             url = "https://example.com",
             activationCodeList = listOf(
                 ActivationCode(code = "NEW", type = ActivationCodeType.DEVICE_BOUND)
-            ),
-            activationCodes = listOf(
-                "OLD",
-                """{"code":"SHOULD_SKIP"}"""
             )
         )
 

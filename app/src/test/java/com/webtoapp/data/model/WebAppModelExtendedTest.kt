@@ -91,9 +91,9 @@ class WebAppModelExtendedTest {
     }
 
     @Test
-    fun `getAllActivationCodes with empty lists returns empty`() {
+    fun `getAllActivationCodes with empty list returns empty`() {
         val app = WebApp(name = "Test", url = "https://test.com",
-            activationCodeList = emptyList(), activationCodes = emptyList())
+            activationCodeList = emptyList())
         assertThat(app.getAllActivationCodes()).isEmpty()
     }
 
