@@ -20,7 +20,6 @@ import androidx.lifecycle.lifecycleScope
 import com.webtoapp.WebToAppApplication
 import com.webtoapp.core.i18n.Strings
 import com.webtoapp.ui.theme.ShellTheme
-import com.webtoapp.ui.theme.LocalIsDarkTheme
 import com.webtoapp.core.webview.TranslateBridge
 import com.webtoapp.data.model.KeyboardAdjustMode
 import com.webtoapp.core.forcedrun.ForcedRunConfig
@@ -59,7 +58,6 @@ class ShellActivity : AppCompatActivity() {
     private var statusBarBackgroundTypeDark: String = "COLOR"
     private var statusBarBackgroundImageDark: String? = null
     private var statusBarBackgroundAlphaDark: Float = 1.0f
-    private var currentIsDarkTheme: Boolean = false
     private var forceHideSystemUi: Boolean = false
     private var keyboardAdjustMode: KeyboardAdjustMode = KeyboardAdjustMode.RESIZE
     private var forcedRunConfig: ForcedRunConfig? = null
@@ -76,8 +74,13 @@ class ShellActivity : AppCompatActivity() {
         backgroundAlpha: Float = 1f
     ) = WindowHelper.applyStatusBarColor(this, colorMode, customColor, darkIcons, isDarkTheme, backgroundAlpha)
 
-    private fun applyImmersiveFullscreen(enabled: Boolean, hideNavBar: Boolean? = null, isDarkTheme: Boolean = false) {
+    private fun isSystemInDarkMode(): Boolean =
+        (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
+
+    private fun applyImmersiveFullscreen(enabled: Boolean, hideNavBar: Boolean? = null, isDarkTheme: Boolean = isSystemInDarkMode()) {
         val shouldHideNavBar = hideNavBar ?: !showNavigationBarInFullscreen
+        val systemDark = isSystemInDarkMode()
         WindowHelper.applyImmersiveFullscreen(
             activity = this,
             enabled = enabled,
@@ -85,10 +88,10 @@ class ShellActivity : AppCompatActivity() {
             isDarkTheme = isDarkTheme,
             showStatusBar = showStatusBarInFullscreen,
             forceHideSystemUi = forceHideSystemUi,
-            statusBarColorMode = statusBarColorMode,
-            statusBarCustomColor = statusBarCustomColor,
-            statusBarDarkIcons = statusBarDarkIcons,
-            statusBarBgType = statusBarBackgroundType,
+            statusBarColorMode = if (systemDark) statusBarColorModeDark else statusBarColorMode,
+            statusBarCustomColor = if (systemDark) statusBarCustomColorDark else statusBarCustomColor,
+            statusBarDarkIcons = if (systemDark) statusBarDarkIconsDark else statusBarDarkIcons,
+            statusBarBgType = if (systemDark) statusBarBackgroundTypeDark else statusBarBackgroundType,
             keyboardAdjustMode = keyboardAdjustMode,
             tag = "ShellActivity"
         )
@@ -382,17 +385,15 @@ class ShellActivity : AppCompatActivity() {
                 darkModeSetting = config.darkMode
             ) {
 
-                val isDarkTheme = com.webtoapp.ui.theme.LocalIsDarkTheme.current
+                val systemDark = isSystemInDarkMode()
 
-                currentIsDarkTheme = isDarkTheme
-
-                LaunchedEffect(isDarkTheme, statusBarColorMode, statusBarColorModeDark) {
+                LaunchedEffect(systemDark, statusBarColorMode, statusBarColorModeDark) {
                     if (!immersiveFullscreenEnabled) {
-                        val effectiveColorMode = if (isDarkTheme) statusBarColorModeDark else statusBarColorMode
-                        val effectiveCustomColor = if (isDarkTheme) statusBarCustomColorDark else statusBarCustomColor
-                        val effectiveDarkIcons = if (isDarkTheme) statusBarDarkIconsDark else statusBarDarkIcons
-                        val effectiveAlpha = if (isDarkTheme) statusBarBackgroundAlphaDark else statusBarBackgroundAlpha
-                        applyStatusBarColor(effectiveColorMode, effectiveCustomColor, effectiveDarkIcons, isDarkTheme, effectiveAlpha)
+                        val effectiveColorMode = if (systemDark) statusBarColorModeDark else statusBarColorMode
+                        val effectiveCustomColor = if (systemDark) statusBarCustomColorDark else statusBarCustomColor
+                        val effectiveDarkIcons = if (systemDark) statusBarDarkIconsDark else statusBarDarkIcons
+                        val effectiveAlpha = if (systemDark) statusBarBackgroundAlphaDark else statusBarBackgroundAlpha
+                        applyStatusBarColor(effectiveColorMode, effectiveCustomColor, effectiveDarkIcons, systemDark, effectiveAlpha)
                     }
                 }
 
@@ -561,13 +562,14 @@ class ShellActivity : AppCompatActivity() {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
             if (customView != null || immersiveFullscreenEnabled || forceHideSystemUi) {
-                applyImmersiveFullscreen(true, isDarkTheme = currentIsDarkTheme)
+                applyImmersiveFullscreen(true, isDarkTheme = isSystemInDarkMode())
             } else {
-                val effectiveColorMode = if (currentIsDarkTheme) statusBarColorModeDark else statusBarColorMode
-                val effectiveCustomColor = if (currentIsDarkTheme) statusBarCustomColorDark else statusBarCustomColor
-                val effectiveDarkIcons = if (currentIsDarkTheme) statusBarDarkIconsDark else statusBarDarkIcons
-                val effectiveAlpha = if (currentIsDarkTheme) statusBarBackgroundAlphaDark else statusBarBackgroundAlpha
-                applyStatusBarColor(effectiveColorMode, effectiveCustomColor, effectiveDarkIcons, currentIsDarkTheme, effectiveAlpha)
+                val systemDark = isSystemInDarkMode()
+                val effectiveColorMode = if (systemDark) statusBarColorModeDark else statusBarColorMode
+                val effectiveCustomColor = if (systemDark) statusBarCustomColorDark else statusBarCustomColor
+                val effectiveDarkIcons = if (systemDark) statusBarDarkIconsDark else statusBarDarkIcons
+                val effectiveAlpha = if (systemDark) statusBarBackgroundAlphaDark else statusBarBackgroundAlpha
+                applyStatusBarColor(effectiveColorMode, effectiveCustomColor, effectiveDarkIcons, systemDark, effectiveAlpha)
             }
         }
     }

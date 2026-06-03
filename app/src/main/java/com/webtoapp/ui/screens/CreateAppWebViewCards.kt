@@ -1512,15 +1512,59 @@ fun UserAgentCard(
 @Composable
 fun HideBrowserToolbarCard(
     enabled: Boolean,
-    onEnabledChange: (Boolean) -> Unit
+    webViewConfig: WebViewConfig = WebViewConfig(),
+    onEnabledChange: (Boolean) -> Unit,
+    onWebViewConfigChange: (WebViewConfig) -> Unit = {}
 ) {
     WtaSettingCard {
         WtaToggleRow(
             icon = Icons.Outlined.WebAsset,
             title = Strings.hideBrowserToolbarLabel,
+            subtitle = Strings.hideBrowserToolbarHint,
             checked = enabled,
             onCheckedChange = onEnabledChange
         )
+
+        AnimatedVisibility(
+            visible = !enabled,
+            enter = CardExpandTransition,
+            exit = CardCollapseTransition
+        ) {
+            Column {
+                WtaSectionDivider()
+                WtaToggleRow(
+                    title = Strings.toolbarShowTitleLabel,
+                    subtitle = Strings.toolbarShowTitleHint,
+                    checked = webViewConfig.toolbarShowTitle,
+                    onCheckedChange = { onWebViewConfigChange(webViewConfig.copy(toolbarShowTitle = it)) }
+                )
+                WtaSectionDivider()
+                WtaToggleRow(
+                    title = Strings.toolbarShowUrlLabel,
+                    subtitle = Strings.toolbarShowUrlHint,
+                    checked = webViewConfig.toolbarShowUrl,
+                    onCheckedChange = { onWebViewConfigChange(webViewConfig.copy(toolbarShowUrl = it)) }
+                )
+                WtaSectionDivider()
+                WtaToggleRow(
+                    title = Strings.toolbarShowBackLabel,
+                    checked = webViewConfig.toolbarShowBack,
+                    onCheckedChange = { onWebViewConfigChange(webViewConfig.copy(toolbarShowBack = it)) }
+                )
+                WtaSectionDivider()
+                WtaToggleRow(
+                    title = Strings.toolbarShowForwardLabel,
+                    checked = webViewConfig.toolbarShowForward,
+                    onCheckedChange = { onWebViewConfigChange(webViewConfig.copy(toolbarShowForward = it)) }
+                )
+                WtaSectionDivider()
+                WtaToggleRow(
+                    title = Strings.toolbarShowRefreshLabel,
+                    checked = webViewConfig.toolbarShowRefresh,
+                    onCheckedChange = { onWebViewConfigChange(webViewConfig.copy(toolbarShowRefresh = it)) }
+                )
+            }
+        }
     }
 }
 

@@ -138,6 +138,8 @@ class WebViewActivity : AppCompatActivity() {
     private var statusBarBackgroundTypeDark: com.webtoapp.data.model.StatusBarBackgroundType = com.webtoapp.data.model.StatusBarBackgroundType.COLOR
     internal var keyboardAdjustMode: KeyboardAdjustMode = KeyboardAdjustMode.RESIZE
 
+    private var currentIsDarkTheme: Boolean = false
+
     private fun applyStatusBarColor(
         colorMode: com.webtoapp.data.model.StatusBarColorMode,
         customColor: String?,
@@ -146,7 +148,7 @@ class WebViewActivity : AppCompatActivity() {
         backgroundAlpha: Float = 1f
     ) = WindowHelper.applyStatusBarColor(this, colorMode.name, customColor, darkIcons, isDarkTheme, backgroundAlpha)
 
-    private fun applyImmersiveFullscreen(enabled: Boolean, hideNavBar: Boolean? = null, isDarkTheme: Boolean = false) {
+    private fun applyImmersiveFullscreen(enabled: Boolean, hideNavBar: Boolean? = null, isDarkTheme: Boolean = currentIsDarkTheme) {
         val shouldHideNavBar = hideNavBar ?: !showNavigationBarInFullscreen
         WindowHelper.applyImmersiveFullscreen(
             activity = this,
@@ -154,10 +156,10 @@ class WebViewActivity : AppCompatActivity() {
             hideNavBar = shouldHideNavBar,
             isDarkTheme = isDarkTheme,
             showStatusBar = showStatusBarInFullscreen,
-            statusBarColorMode = statusBarColorMode.name,
-            statusBarCustomColor = statusBarCustomColor,
-            statusBarDarkIcons = statusBarDarkIcons,
-            statusBarBgType = statusBarBackgroundType.name,
+            statusBarColorMode = if (isDarkTheme) statusBarColorModeDark.name else statusBarColorMode.name,
+            statusBarCustomColor = if (isDarkTheme) statusBarCustomColorDark else statusBarCustomColor,
+            statusBarDarkIcons = if (isDarkTheme) statusBarDarkIconsDark else statusBarDarkIcons,
+            statusBarBgType = if (isDarkTheme) statusBarBackgroundTypeDark.name else statusBarBackgroundType.name,
             keyboardAdjustMode = keyboardAdjustMode,
             tag = "WebViewActivity"
         )
@@ -500,9 +502,14 @@ class WebViewActivity : AppCompatActivity() {
         setContent {
             WebToAppTheme { isDarkTheme ->
 
-                LaunchedEffect(isDarkTheme, statusBarColorMode) {
+                currentIsDarkTheme = isDarkTheme
+
+                LaunchedEffect(isDarkTheme, statusBarColorMode, statusBarColorModeDark) {
                     if (!immersiveFullscreenEnabled) {
-                        applyStatusBarColor(statusBarColorMode, statusBarCustomColor, statusBarDarkIcons, isDarkTheme)
+                        val effectiveColorMode = if (isDarkTheme) statusBarColorModeDark else statusBarColorMode
+                        val effectiveCustomColor = if (isDarkTheme) statusBarCustomColorDark else statusBarCustomColor
+                        val effectiveDarkIcons = if (isDarkTheme) statusBarDarkIconsDark else statusBarDarkIcons
+                        applyStatusBarColor(effectiveColorMode, effectiveCustomColor, effectiveDarkIcons, isDarkTheme)
                     }
                 }
 
@@ -2883,12 +2890,13 @@ fun WebViewScreen(
     }
 
     if (hideToolbar && webApp?.webViewConfig?.showStatusBarInFullscreen == true) {
+        val overlayIsDark = com.webtoapp.ui.theme.LocalIsDarkTheme.current
         com.webtoapp.ui.components.StatusBarOverlay(
             show = true,
-            backgroundType = statusBarBackgroundType,
-            backgroundColor = statusBarBackgroundColor,
-            backgroundImagePath = statusBarBackgroundImage,
-            alpha = statusBarBackgroundAlpha,
+            backgroundType = if (overlayIsDark) statusBarBackgroundTypeDarkLocal else statusBarBackgroundType,
+            backgroundColor = if (overlayIsDark) statusBarBackgroundColorDark else statusBarBackgroundColor,
+            backgroundImagePath = if (overlayIsDark) statusBarBackgroundImageDark else statusBarBackgroundImage,
+            alpha = if (overlayIsDark) statusBarBackgroundAlphaDark else statusBarBackgroundAlpha,
             heightDp = statusBarHeightDp,
             modifier = Modifier.align(Alignment.TopStart)
         )

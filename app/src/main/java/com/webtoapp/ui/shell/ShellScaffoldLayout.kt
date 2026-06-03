@@ -81,6 +81,11 @@ fun BoxScope.ShellScaffoldLayout(
                     pageTitle = pageTitle,
                     appName = config.appName,
                     currentUrl = currentUrl,
+                    showTitle = config.webViewConfig.toolbarShowTitle,
+                    showUrl = config.webViewConfig.toolbarShowUrl,
+                    showBack = config.webViewConfig.toolbarShowBack,
+                    showForward = config.webViewConfig.toolbarShowForward,
+                    showRefresh = config.webViewConfig.toolbarShowRefresh,
                     canGoBack = canGoBack,
                     canGoForward = canGoForward,
                     webViewRef = webViewRef
@@ -188,6 +193,11 @@ private fun ShellTopAppBar(
     pageTitle: String,
     appName: String,
     currentUrl: String,
+    showTitle: Boolean,
+    showUrl: Boolean,
+    showBack: Boolean,
+    showForward: Boolean,
+    showRefresh: Boolean,
     canGoBack: Boolean,
     canGoForward: Boolean,
     webViewRef: WebView?
@@ -197,14 +207,16 @@ private fun ShellTopAppBar(
     TopAppBar(
         title = {
             Column {
-                Text(
-                    text = pageTitle.ifEmpty { appName },
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                if (currentUrl.isNotEmpty()) {
+                if (showTitle) {
+                    Text(
+                        text = pageTitle.ifEmpty { appName },
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                if (showUrl && currentUrl.isNotEmpty()) {
                     Text(
                         text = currentUrl.shortenForShellToolbar(),
                         style = MaterialTheme.typography.labelSmall,
@@ -216,27 +228,33 @@ private fun ShellTopAppBar(
             }
         },
         actions = {
-            com.webtoapp.ui.design.WtaIconButton(
-                onClick = {
-                    (context as? AppCompatActivity)?.let { activity ->
-                        ShellWebViewNavigation.goBackOrFinish(activity, webViewRef)
-                    }
-                },
-                icon = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                enabled = canGoBack
-            )
-            com.webtoapp.ui.design.WtaIconButton(
-                onClick = { webViewRef?.goForward() },
-                icon = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Forward",
-                enabled = canGoForward
-            )
-            com.webtoapp.ui.design.WtaIconButton(
-                onClick = { webViewRef?.reload() },
-                icon = Icons.Default.Refresh,
-                contentDescription = "Refresh"
-            )
+            if (showBack) {
+                com.webtoapp.ui.design.WtaIconButton(
+                    onClick = {
+                        (context as? AppCompatActivity)?.let { activity ->
+                            ShellWebViewNavigation.goBackOrFinish(activity, webViewRef)
+                        }
+                    },
+                    icon = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    enabled = canGoBack
+                )
+            }
+            if (showForward) {
+                com.webtoapp.ui.design.WtaIconButton(
+                    onClick = { webViewRef?.goForward() },
+                    icon = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Forward",
+                    enabled = canGoForward
+                )
+            }
+            if (showRefresh) {
+                com.webtoapp.ui.design.WtaIconButton(
+                    onClick = { webViewRef?.reload() },
+                    icon = Icons.Default.Refresh,
+                    contentDescription = "Refresh"
+                )
+            }
         },
         colors = TopAppBarDefaults.topAppBarColors(
 
