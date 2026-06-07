@@ -36,6 +36,7 @@ class ShellActivity : AppCompatActivity() {
     private var deepLinkUrl = mutableStateOf<String?>(null)
 
     val permissionDelegate = ShellPermissionDelegate(this)
+    private val startupPermissions = ShellStartupPermissions(this)
 
     private var immersiveFullscreenEnabled: Boolean = false
     private var showStatusBarInFullscreen: Boolean = false
@@ -283,6 +284,15 @@ class ShellActivity : AppCompatActivity() {
             com.webtoapp.core.shell.ShellLogger.d("ShellActivity", "通知权限请求完成")
         } catch (e: Exception) {
             com.webtoapp.core.shell.ShellLogger.e("ShellActivity", "通知权限请求失败", e)
+        }
+
+        try {
+            startupPermissions.requestConfiguredPermissions(
+                floatingWindowHandlesOverlay = config.webViewConfig.floatingWindowConfig.enabled
+            )
+            com.webtoapp.core.shell.ShellLogger.d("ShellActivity", "已声明权限请求完成")
+        } catch (e: Exception) {
+            com.webtoapp.core.shell.ShellLogger.e("ShellActivity", "已声明权限请求失败", e)
         }
 
         com.webtoapp.core.shell.ShellLogger.d("ShellActivity", "开始读取状态栏配置")
