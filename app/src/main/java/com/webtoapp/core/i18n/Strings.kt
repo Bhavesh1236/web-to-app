@@ -21004,6 +21004,24 @@ object Strings {
         AppLanguage.ARABIC -> "إعادة تعيين"
     }
 
+    val fwMinimizedIconSize: String get() = when (lang) {
+        AppLanguage.CHINESE -> "图标大小"
+        AppLanguage.ENGLISH -> "Icon Size"
+        AppLanguage.ARABIC -> "حجم الأيقونة"
+    }
+
+    val fwMinimizedIconEdgeDocking: String get() = when (lang) {
+        AppLanguage.CHINESE -> "收起后半隐藏"
+        AppLanguage.ENGLISH -> "Half-hide When Minimized"
+        AppLanguage.ARABIC -> "إخفاء نصف الأيقونة عند التصغير"
+    }
+
+    val fwMinimizedIconEdgeDockingDesc: String get() = when (lang) {
+        AppLanguage.CHINESE -> "拖动收起图标后自动吸附到屏幕边缘，并露出一半方便再次展开"
+        AppLanguage.ENGLISH -> "After dragging, the minimized icon docks to the screen edge and leaves half visible for restore"
+        AppLanguage.ARABIC -> "بعد السحب، تلتصق الأيقونة المصغرة بحافة الشاشة وتبقي نصفها ظاهرا للاستعادة"
+    }
+
     val fwSectionBehavior: String get() = when (lang) {
         AppLanguage.CHINESE -> "行为控制"
         AppLanguage.ENGLISH -> "Behavior"

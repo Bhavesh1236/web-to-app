@@ -203,6 +203,8 @@ fun buildWebViewConfig(config: ShellConfig): WebViewConfig {
                 com.webtoapp.data.model.FloatingBorderStyle.SUBTLE
             },
             minimizedIconPath = config.webViewConfig.floatingWindowConfig.minimizedIconPath,
+            minimizedIconSizePercent = config.webViewConfig.floatingWindowConfig.minimizedIconSizePercent,
+            minimizedIconEdgeDocking = config.webViewConfig.floatingWindowConfig.minimizedIconEdgeDocking,
             showTitleBar = config.webViewConfig.floatingWindowConfig.showTitleBar,
             autoHideTitleBar = config.webViewConfig.floatingWindowConfig.autoHideTitleBar,
             startMinimized = config.webViewConfig.floatingWindowConfig.startMinimized,

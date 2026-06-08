@@ -42,6 +42,12 @@ class FloatingWindowManager(private val context: Context) {
 
         private const val MINI_BUTTON_SIZE_DP = 56
 
+        private const val MINI_BUTTON_MIN_SIZE_PERCENT = 50
+
+        private const val MINI_BUTTON_MAX_SIZE_PERCENT = 100
+
+        private const val MINI_BUTTON_EDGE_VISIBLE_RATIO = 0.5f
+
         private const val RESIZE_HANDLE_SIZE_DP = 28
 
         private const val EDGE_SNAP_THRESHOLD_PX = 60
@@ -839,7 +845,7 @@ class FloatingWindowManager(private val context: Context) {
             }?.start()
 
         val density = context.resources.displayMetrics.density
-        val buttonSize = (MINI_BUTTON_SIZE_DP * density).toInt()
+        val buttonSize = resolveMiniButtonSizePx(density)
 
         val overlayType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -852,13 +858,17 @@ class FloatingWindowManager(private val context: Context) {
             buttonSize,
             buttonSize,
             overlayType,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.START
             x = windowParams?.x ?: 0
             y = windowParams?.y ?: 0
             clampMiniParamsToScreen(this)
+            if (config.minimizedIconEdgeDocking) {
+                dockMiniParamsToNearestEdge(this)
+            }
             alpha = 0.9f
         }
 
@@ -938,6 +948,9 @@ class FloatingWindowManager(private val context: Context) {
                         windowParams?.x = miniParams?.x ?: 0
                         windowParams?.y = miniParams?.y ?: 0
                         windowParams?.let { clampWindowParamsToScreen(it) }
+                        if (config.minimizedIconEdgeDocking) {
+                            performMiniEdgeDock()
+                        }
                         if (config.rememberPosition) {
                             savePosition()
                         }
@@ -964,7 +977,7 @@ class FloatingWindowManager(private val context: Context) {
                 miniButton = null
             }?.start()
 
-        windowParams?.x = miniParams?.x ?: windowParams?.x ?: 0
+        windowParams?.x = restoreWindowXFromMiniParams()
         windowParams?.y = miniParams?.y ?: windowParams?.y ?: 0
         windowParams?.let { clampWindowParamsToScreen(it) }
 
@@ -1216,8 +1229,91 @@ class FloatingWindowManager(private val context: Context) {
 
     private fun clampMiniParamsToScreen(params: WindowManager.LayoutParams) {
         val dm = context.resources.displayMetrics
-        params.x = params.x.coerceIn(0, (dm.widthPixels - params.width).coerceAtLeast(0))
-        params.y = params.y.coerceIn(0, (dm.heightPixels - params.height).coerceAtLeast(0))
+        val hiddenWidth = miniHiddenWidth(params)
+        val hiddenHeight = miniHiddenHeight(params)
+        val minX = if (config.minimizedIconEdgeDocking) -hiddenWidth else 0
+        val maxX = if (config.minimizedIconEdgeDocking) {
+            (dm.widthPixels - params.width + hiddenWidth).coerceAtLeast(minX)
+        } else {
+            (dm.widthPixels - params.width).coerceAtLeast(0)
+        }
+        val minY = if (config.minimizedIconEdgeDocking) -hiddenHeight else 0
+        val maxY = if (config.minimizedIconEdgeDocking) {
+            (dm.heightPixels - params.height + hiddenHeight).coerceAtLeast(minY)
+        } else {
+            (dm.heightPixels - params.height).coerceAtLeast(0)
+        }
+        params.x = params.x.coerceIn(minX, maxX)
+        params.y = params.y.coerceIn(minY, maxY)
+    }
+
+    private fun resolveMiniButtonSizePx(density: Float): Int {
+        val percent = config.minimizedIconSizePercent.coerceIn(
+            MINI_BUTTON_MIN_SIZE_PERCENT,
+            MINI_BUTTON_MAX_SIZE_PERCENT
+        )
+        return (MINI_BUTTON_SIZE_DP * density * percent / 100f).roundToInt().coerceAtLeast(1)
+    }
+
+    private fun miniHiddenWidth(params: WindowManager.LayoutParams): Int {
+        return (params.width * MINI_BUTTON_EDGE_VISIBLE_RATIO).roundToInt().coerceIn(1, params.width)
+    }
+
+    private fun miniHiddenHeight(params: WindowManager.LayoutParams): Int {
+        return (params.height * MINI_BUTTON_EDGE_VISIBLE_RATIO).roundToInt().coerceIn(1, params.height)
+    }
+
+    private fun dockMiniParamsToNearestEdge(params: WindowManager.LayoutParams) {
+        val dm = context.resources.displayMetrics
+        val hiddenWidth = miniHiddenWidth(params)
+        val centerX = params.x + params.width / 2
+        val centerY = params.y + params.height / 2
+        val leftDistance = centerX
+        val rightDistance = dm.widthPixels - centerX
+        val topDistance = centerY
+        val bottomDistance = dm.heightPixels - centerY
+        val nearest = minOf(leftDistance, rightDistance, topDistance, bottomDistance)
+        when (nearest) {
+            leftDistance -> params.x = -hiddenWidth
+            rightDistance -> params.x = dm.widthPixels - params.width + hiddenWidth
+            topDistance -> params.y = -miniHiddenHeight(params)
+            else -> params.y = dm.heightPixels - params.height + miniHiddenHeight(params)
+        }
+        clampMiniParamsToScreen(params)
+    }
+
+    private fun performMiniEdgeDock() {
+        val params = miniParams ?: return
+        val button = miniButton ?: return
+        val startX = params.x
+        val startY = params.y
+        dockMiniParamsToNearestEdge(params)
+        val finalX = params.x
+        val finalY = params.y
+        params.x = startX
+        params.y = startY
+        val animator = android.animation.ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 180
+            interpolator = OvershootInterpolator(0.8f)
+            addUpdateListener { anim ->
+                val fraction = anim.animatedValue as Float
+                params.x = (startX + (finalX - startX) * fraction).toInt()
+                params.y = (startY + (finalY - startY) * fraction).toInt()
+                try {
+                    windowManager.updateViewLayout(button, params)
+                } catch (_: Exception) {}
+            }
+        }
+        animator.start()
+    }
+
+    private fun restoreWindowXFromMiniParams(): Int {
+        val params = windowParams ?: return miniParams?.x ?: 0
+        val mini = miniParams ?: return params.x
+        val dm = context.resources.displayMetrics
+        val maxWindowX = (dm.widthPixels - params.width).coerceAtLeast(0)
+        val centeredX = mini.x + mini.width / 2 - params.width / 2
+        return centeredX.coerceIn(0, maxWindowX)
     }
 
     private fun createMiniIconView(density: Float): View {

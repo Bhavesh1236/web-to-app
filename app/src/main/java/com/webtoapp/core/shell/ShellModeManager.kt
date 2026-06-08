@@ -1394,6 +1394,12 @@ data class FloatingWindowShellConfig(
     @SerializedName("minimizedIconPath")
     val minimizedIconPath: String? = null,
 
+    @SerializedName("minimizedIconSizePercent")
+    val minimizedIconSizePercent: Int = 100,
+
+    @SerializedName("minimizedIconEdgeDocking")
+    val minimizedIconEdgeDocking: Boolean = false,
+
     @SerializedName("showTitleBar")
     val showTitleBar: Boolean = true,
 

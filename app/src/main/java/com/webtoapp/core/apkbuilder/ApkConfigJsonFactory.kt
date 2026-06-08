@@ -296,6 +296,8 @@ internal object ApkConfigJsonFactory {
         "minimizedIconPath" to if (!floatingWindow.minimizedIconPath.isNullOrEmpty()) {
             FLOATING_WINDOW_MINIMIZED_ICON_ASSET
         } else null,
+        "minimizedIconSizePercent" to floatingWindow.minimizedIconSizePercent,
+        "minimizedIconEdgeDocking" to floatingWindow.minimizedIconEdgeDocking,
         "showTitleBar" to floatingWindow.showTitleBar,
         "autoHideTitleBar" to floatingWindow.autoHideTitleBar,
         "startMinimized" to floatingWindow.startMinimized,

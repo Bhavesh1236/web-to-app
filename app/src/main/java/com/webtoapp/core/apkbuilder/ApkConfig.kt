@@ -573,6 +573,8 @@ data class FloatingWindowBlock(
     val cornerRadius: Int = 16,
     val borderStyle: String = "SUBTLE",
     val minimizedIconPath: String? = null,
+    val minimizedIconSizePercent: Int = 100,
+    val minimizedIconEdgeDocking: Boolean = false,
     val showTitleBar: Boolean = true,
     val autoHideTitleBar: Boolean = false,
     val startMinimized: Boolean = false,

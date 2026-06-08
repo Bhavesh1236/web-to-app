@@ -66,7 +66,9 @@ class ApkConfigJsonFactoryTest {
                 aspectRatioMode = "RATIO_16_9",
                 customAspectRatioWidth = 21,
                 customAspectRatioHeight = 9,
-                minimizedIconPath = "/tmp/floating icon.png"
+                minimizedIconPath = "/tmp/floating icon.png",
+                minimizedIconSizePercent = 70,
+                minimizedIconEdgeDocking = true
             ),
             bgm = BgmBlock(
                 enabled = true,
@@ -97,6 +99,8 @@ class ApkConfigJsonFactoryTest {
         assertThat(floatingWindow.get("customAspectRatioWidth").asInt).isEqualTo(21)
         assertThat(floatingWindow.get("customAspectRatioHeight").asInt).isEqualTo(9)
         assertThat(floatingWindow.get("minimizedIconPath").asString).isEqualTo("floating_window_minimized_icon.png")
+        assertThat(floatingWindow.get("minimizedIconSizePercent").asInt).isEqualTo(70)
+        assertThat(floatingWindow.get("minimizedIconEdgeDocking").asBoolean).isTrue()
         assertThat(webView.getAsJsonArray("injectScripts")[0].asJsonObject.get("code").asString)
             .isEqualTo(config.injectScripts.single().code)
         val networkTrust = root.getAsJsonObject("networkTrustConfig")

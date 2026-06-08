@@ -566,6 +566,8 @@ class ShellActivity : AppCompatActivity() {
                 com.webtoapp.data.model.FloatingBorderStyle.SUBTLE
             },
             minimizedIconPath = floatingWindowConfig.minimizedIconPath,
+            minimizedIconSizePercent = floatingWindowConfig.minimizedIconSizePercent,
+            minimizedIconEdgeDocking = floatingWindowConfig.minimizedIconEdgeDocking,
             showTitleBar = floatingWindowConfig.showTitleBar,
             autoHideTitleBar = floatingWindowConfig.autoHideTitleBar,
             startMinimized = floatingWindowConfig.startMinimized,

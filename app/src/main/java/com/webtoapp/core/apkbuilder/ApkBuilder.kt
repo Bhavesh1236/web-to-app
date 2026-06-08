@@ -3131,6 +3131,8 @@ private fun WebApp.buildFloatingWindowBlock(): FloatingWindowBlock {
         cornerRadius = fw.cornerRadius,
         borderStyle = fw.borderStyle.name,
         minimizedIconPath = fw.minimizedIconPath,
+        minimizedIconSizePercent = fw.minimizedIconSizePercent,
+        minimizedIconEdgeDocking = fw.minimizedIconEdgeDocking,
         showTitleBar = fw.showTitleBar,
         autoHideTitleBar = fw.autoHideTitleBar,
         startMinimized = fw.startMinimized,

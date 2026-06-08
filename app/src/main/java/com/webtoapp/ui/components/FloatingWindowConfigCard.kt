@@ -320,6 +320,24 @@ fun FloatingWindowConfigCard(
                         }
                     )
 
+                    Spacer(Modifier.height(12.dp))
+                    SliderWithLabel(
+                        label = Strings.fwMinimizedIconSize,
+                        value = config.minimizedIconSizePercent.coerceIn(50, 100),
+                        valueRange = 50f..100f,
+                        steps = 4,
+                        onValueChange = {
+                            onConfigChange(config.copy(minimizedIconSizePercent = it.coerceIn(50, 100)))
+                        }
+                    )
+
+                    ToggleRow(
+                        title = Strings.fwMinimizedIconEdgeDocking,
+                        subtitle = Strings.fwMinimizedIconEdgeDockingDesc,
+                        checked = config.minimizedIconEdgeDocking,
+                        onCheckedChange = { onConfigChange(config.copy(minimizedIconEdgeDocking = it)) }
+                    )
+
                     Spacer(Modifier.height(16.dp))
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                     Spacer(Modifier.height(16.dp))
