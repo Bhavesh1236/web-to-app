@@ -167,7 +167,8 @@ fun CreateFrontendAppScreen(
                                 type = IssueType.MISSING_CONFIG,
                                 message = e.message ?: Strings.projectImportFailed
                             )
-                        )
+                        ),
+                        suggestions = emptyList()
                     )
                 } finally {
                     isDetecting = false

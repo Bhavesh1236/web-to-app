@@ -29299,6 +29299,16 @@ object Strings {
         AppLanguage.ENGLISH -> "PWA Offline Support"
         AppLanguage.ARABIC -> "دعم PWA بدون اتصال"
     }
+    val freshSessionModeTitle: String get() = when (lang) {
+        AppLanguage.CHINESE -> "每次打开都是新会话"
+        AppLanguage.ENGLISH -> "Fresh Session on Launch"
+        AppLanguage.ARABIC -> "جلسة جديدة عند التشغيل"
+    }
+    val freshSessionModeDesc: String get() = when (lang) {
+        AppLanguage.CHINESE -> "启动生成的 APK 时清除 Cookie、站点存储和网页缓存，像第一次打开一样"
+        AppLanguage.ENGLISH -> "Clear cookies, site storage, and web cache when the generated APK launches"
+        AppLanguage.ARABIC -> "مسح ملفات تعريف الارتباط وتخزين الموقع وذاكرة الويب عند تشغيل ملف APK الناتج"
+    }
     val pwaOfflineSubtitle: String get() = when (lang) {
         AppLanguage.CHINESE -> "注入 Service Worker 缓存层，支持离线浏览已访问页面"
         AppLanguage.ENGLISH -> "Inject Service Worker cache layer for offline browsing of visited pages"

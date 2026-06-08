@@ -244,6 +244,7 @@ data class WebViewConfig(
     val allowFileAccess: Boolean = false,
     val allowContentAccess: Boolean = true,
     val cacheEnabled: Boolean = true,
+    val clearBrowsingDataOnLaunch: Boolean = false,
     val userAgent: String? = null,
     val userAgentMode: UserAgentMode = UserAgentMode.DEFAULT,
     val customUserAgent: String? = null,

@@ -981,6 +981,9 @@ data class WebViewShellConfig(
     @SerializedName("cacheEnabled")
     val cacheEnabled: Boolean = true,
 
+    @SerializedName("clearBrowsingDataOnLaunch")
+    val clearBrowsingDataOnLaunch: Boolean = false,
+
     @SerializedName("zoomEnabled")
     val zoomEnabled: Boolean = true,
 

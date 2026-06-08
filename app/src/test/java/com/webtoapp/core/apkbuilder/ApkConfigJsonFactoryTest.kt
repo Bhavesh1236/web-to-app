@@ -103,6 +103,7 @@ class ApkConfigJsonFactoryTest {
             ),
             webView = WebViewBlock(
                 javaScriptEnabled = false,
+                clearBrowsingDataOnLaunch = true,
                 injectScripts = listOf(
                     UserScript(
                         name = "start",
@@ -126,6 +127,7 @@ class ApkConfigJsonFactoryTest {
 
         assertThat(shellConfig.appName).isEqualTo(config.appName)
         assertThat(shellConfig.webViewConfig.javaScriptEnabled).isFalse()
+        assertThat(shellConfig.webViewConfig.clearBrowsingDataOnLaunch).isTrue()
         assertThat(shellConfig.webViewConfig.injectScripts.single().runAt).isEqualTo("DOCUMENT_IDLE")
         assertThat(shellConfig.autoStartConfig?.scheduledTime).isEqualTo("07:30")
         assertThat(shellConfig.autoStartConfig?.scheduledDays).containsExactly(1, 3, 5).inOrder()

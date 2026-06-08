@@ -59,6 +59,7 @@ class WebViewManager(
     companion object {
 
         private var DESKTOP_USER_AGENT: String? = null
+        private var browsingDataClearGeneration = 0L
         private const val DESKTOP_USER_AGENT_FALLBACK = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
 
         private val MIME_TYPE_MAP = mapOf(
@@ -184,6 +185,46 @@ class WebViewManager(
             if (userAgent.isEmpty()) return userAgent
             if (!userAgent.contains("wv")) return userAgent
             return WEBVIEW_WV_MARKER_REGEX.replace(userAgent, ")")
+        }
+
+        fun beginFreshBrowsingSession() {
+            browsingDataClearGeneration++
+        }
+
+        @Suppress("DEPRECATION")
+        fun clearBrowsingData(context: Context, webView: WebView?) {
+            try {
+                webView?.stopLoading()
+                webView?.clearCache(true)
+                webView?.clearHistory()
+                webView?.clearFormData()
+            } catch (e: Exception) {
+                AppLogger.w("WebViewManager", "Failed to clear WebView browsing data", e)
+            }
+            try {
+                WebStorage.getInstance().deleteAllData()
+            } catch (e: Exception) {
+                AppLogger.w("WebViewManager", "Failed to clear WebStorage", e)
+            }
+            try {
+                val cookieManager = CookieManager.getInstance()
+                cookieManager.removeAllCookie()
+                cookieManager.removeSessionCookie()
+                cookieManager.removeAllCookies(null)
+                cookieManager.removeSessionCookies(null)
+                cookieManager.flush()
+            } catch (e: Exception) {
+                AppLogger.w("WebViewManager", "Failed to clear cookies", e)
+            }
+            try {
+                val db = WebViewDatabase.getInstance(context)
+                db.clearHttpAuthUsernamePassword()
+                db.clearUsernamePassword()
+                db.clearFormData()
+            } catch (e: Exception) {
+                AppLogger.w("WebViewManager", "Failed to clear WebView database", e)
+            }
+            AppLogger.i("WebViewManager", "Fresh browsing session data cleared")
         }
 
         private val COMMON_SECOND_LEVEL_TLDS = setOf(
@@ -1059,6 +1100,8 @@ class WebViewManager(
         }
     }
 
+    private var appliedBrowsingDataClearGeneration = -1L
+
     @SuppressLint("SetJavaScriptEnabled")
     fun configureWebView(
         webView: WebView,
@@ -1076,6 +1119,11 @@ class WebViewManager(
         ensureDynamicUserAgents()
 
         this.currentConfig = config
+
+        if (config.clearBrowsingDataOnLaunch && appliedBrowsingDataClearGeneration != browsingDataClearGeneration) {
+            appliedBrowsingDataClearGeneration = browsingDataClearGeneration
+            clearBrowsingData(context, webView)
+        }
 
         this.cachedBrowserDisguiseConfig = browserDisguiseConfig
         this.cachedBrowserDisguiseJs = if (browserDisguiseConfig?.enabled == true) {

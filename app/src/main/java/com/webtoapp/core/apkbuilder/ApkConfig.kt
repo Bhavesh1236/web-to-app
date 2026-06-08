@@ -96,6 +96,7 @@ data class ApkConfig(
     val allowFileAccess: Boolean get() = webView.allowFileAccess
     val allowContentAccess: Boolean get() = webView.allowContentAccess
     val cacheEnabled: Boolean get() = webView.cacheEnabled
+    val clearBrowsingDataOnLaunch: Boolean get() = webView.clearBrowsingDataOnLaunch
     val zoomEnabled: Boolean get() = webView.zoomEnabled
     val desktopMode: Boolean get() = webView.desktopMode
     val userAgent: String? get() = webView.userAgent
@@ -437,6 +438,7 @@ data class WebViewBlock(
     val allowFileAccess: Boolean = false,
     val allowContentAccess: Boolean = true,
     val cacheEnabled: Boolean = true,
+    val clearBrowsingDataOnLaunch: Boolean = false,
     val zoomEnabled: Boolean = true,
     val desktopMode: Boolean = false,
     val userAgent: String? = null,

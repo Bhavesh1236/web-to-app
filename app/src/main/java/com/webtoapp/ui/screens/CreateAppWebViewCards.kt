@@ -646,10 +646,31 @@ fun BrowserAdvancedConfigCard(
                     ) {
                         WtaSettingCard {
                             WtaToggleRow(
+                                title = Strings.freshSessionModeTitle,
+                                subtitle = Strings.freshSessionModeDesc,
+                                checked = config.clearBrowsingDataOnLaunch,
+                                onCheckedChange = {
+                                    onConfigChange(
+                                        config.copy(
+                                            clearBrowsingDataOnLaunch = it,
+                                            pwaOfflineEnabled = if (it) false else config.pwaOfflineEnabled
+                                        )
+                                    )
+                                }
+                            )
+                            WtaSectionDivider()
+                            WtaToggleRow(
                                 title = Strings.pwaOfflineTitle,
                                 subtitle = Strings.pwaOfflineSubtitle,
                                 checked = config.pwaOfflineEnabled,
-                                onCheckedChange = { onConfigChange(config.copy(pwaOfflineEnabled = it)) }
+                                onCheckedChange = {
+                                    onConfigChange(
+                                        config.copy(
+                                            pwaOfflineEnabled = it,
+                                            clearBrowsingDataOnLaunch = if (it) false else config.clearBrowsingDataOnLaunch
+                                        )
+                                    )
+                                }
                             )
 
                             AnimatedVisibility(

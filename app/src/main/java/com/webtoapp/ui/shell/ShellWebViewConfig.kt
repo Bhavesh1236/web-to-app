@@ -14,7 +14,8 @@ fun buildWebViewConfig(config: ShellConfig): WebViewConfig {
         domStorageEnabled = config.webViewConfig.domStorageEnabled,
         allowFileAccess = config.webViewConfig.allowFileAccess,
         allowContentAccess = config.webViewConfig.allowContentAccess,
-        cacheEnabled = config.webViewConfig.cacheEnabled,
+        cacheEnabled = config.webViewConfig.cacheEnabled && !config.webViewConfig.clearBrowsingDataOnLaunch,
+        clearBrowsingDataOnLaunch = config.webViewConfig.clearBrowsingDataOnLaunch,
         zoomEnabled = config.webViewConfig.zoomEnabled,
         desktopMode = config.webViewConfig.desktopMode,
         userAgent = config.webViewConfig.userAgent,
@@ -203,7 +204,7 @@ fun buildWebViewConfig(config: ShellConfig): WebViewConfig {
         fullscreenEnabled = config.webViewConfig.fullscreenEnabled,
 
         performanceOptimization = config.webViewConfig.performanceOptimization,
-        pwaOfflineEnabled = config.webViewConfig.pwaOfflineEnabled,
+        pwaOfflineEnabled = config.webViewConfig.pwaOfflineEnabled && !config.webViewConfig.clearBrowsingDataOnLaunch,
         pwaOfflineStrategy = config.webViewConfig.pwaOfflineStrategy,
 
         errorPageConfig = com.webtoapp.core.errorpage.ErrorPageConfig(

@@ -2926,7 +2926,8 @@ private fun WebApp.buildWebViewBlock(context: android.content.Context?): WebView
         domStorageEnabled = webViewConfig.domStorageEnabled,
         allowFileAccess = webViewConfig.allowFileAccess,
         allowContentAccess = webViewConfig.allowContentAccess,
-        cacheEnabled = webViewConfig.cacheEnabled,
+        cacheEnabled = webViewConfig.cacheEnabled && !webViewConfig.clearBrowsingDataOnLaunch,
+        clearBrowsingDataOnLaunch = webViewConfig.clearBrowsingDataOnLaunch,
         zoomEnabled = webViewConfig.zoomEnabled,
         desktopMode = webViewConfig.desktopMode,
         userAgent = webViewConfig.userAgent,
@@ -2955,7 +2956,7 @@ private fun WebApp.buildWebViewBlock(context: android.content.Context?): WebView
         swipeRefreshEnabled = webViewConfig.swipeRefreshEnabled,
         fullscreenEnabled = webViewConfig.fullscreenEnabled,
         performanceOptimization = webViewConfig.performanceOptimization,
-        pwaOfflineEnabled = webViewConfig.pwaOfflineEnabled,
+        pwaOfflineEnabled = webViewConfig.pwaOfflineEnabled && !webViewConfig.clearBrowsingDataOnLaunch,
         pwaOfflineStrategy = webViewConfig.pwaOfflineStrategy,
         keyboardAdjustMode = webViewConfig.keyboardAdjustMode.name
     )

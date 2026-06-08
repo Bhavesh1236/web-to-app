@@ -42,6 +42,7 @@ class ShellActivity : AppCompatActivity() {
     private var showStatusBarInFullscreen: Boolean = false
     private var showNavigationBarInFullscreen: Boolean = false
     private var translateBridge: TranslateBridge? = null
+    private var clearBrowsingDataOnLaunch: Boolean = false
 
     private var originalOrientationBeforeFullscreen: Int = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 
@@ -205,6 +206,12 @@ class ShellActivity : AppCompatActivity() {
         contentLength: Long
     ) = permissionDelegate.handleDownloadWithPermission(url, userAgent, contentDisposition, mimeType, contentLength, webView)
 
+    private fun resetFreshBrowsingSession() {
+        com.webtoapp.core.webview.WebViewManager.beginFreshBrowsingSession()
+        com.webtoapp.core.webview.WebViewManager.clearBrowsingData(this, webView)
+        webViewStateBundle = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         ShellActivityInit.initLogger(this)
@@ -249,6 +256,10 @@ class ShellActivity : AppCompatActivity() {
 
         com.webtoapp.core.shell.ShellLogger.i("ShellActivity", "配置加载成功: ${config.appName}")
         AppLogger.d("ShellActivity", "WebView UA config from shell: userAgentMode=${config.webViewConfig.userAgentMode}, customUserAgent=${config.webViewConfig.customUserAgent}, userAgent=${config.webViewConfig.userAgent}")
+        clearBrowsingDataOnLaunch = config.webViewConfig.clearBrowsingDataOnLaunch
+        if (clearBrowsingDataOnLaunch) {
+            resetFreshBrowsingSession()
+        }
 
         try {
             val appLanguage = when (config.language.uppercase()) {
@@ -594,8 +605,20 @@ class ShellActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
+        val launcherRelaunch = intent?.action == Intent.ACTION_MAIN &&
+            intent.hasCategory(Intent.CATEGORY_LAUNCHER)
+        if (clearBrowsingDataOnLaunch && launcherRelaunch) {
+            resetFreshBrowsingSession()
+            com.webtoapp.core.shell.ShellLogger.i("ShellActivity", "Fresh session reset after launcher relaunch")
+            recreate()
+            return
+        }
+
         val notificationClickUrl = intent?.getStringExtra("notification_click_url")
         if (!notificationClickUrl.isNullOrBlank()) {
+            if (clearBrowsingDataOnLaunch) {
+                resetFreshBrowsingSession()
+            }
             val baseUrl = WebToAppApplication.shellMode.getConfig()?.targetUrl ?: ""
             val fullUrl = if (notificationClickUrl.startsWith("http://") || notificationClickUrl.startsWith("https://")) notificationClickUrl
                           else baseUrl.trimEnd('/') + "/" + notificationClickUrl.trimStart('/')
@@ -612,6 +635,9 @@ class ShellActivity : AppCompatActivity() {
 
         val url = intent?.data?.toString()
         if (!url.isNullOrBlank() && intent?.action == Intent.ACTION_VIEW) {
+            if (clearBrowsingDataOnLaunch) {
+                resetFreshBrowsingSession()
+            }
             val config = WebToAppApplication.shellMode.getConfig()
             val safeUrl = normalizeShellTargetUrlForSecurity(url)
             val validatedUrl = if (config != null && (config.deepLinkEnabled || config.deepLinkHosts.isNotEmpty())) {
