@@ -4,10 +4,12 @@ import android.content.Context
 import android.content.res.AssetFileDescriptor
 import android.media.MediaPlayer
 import androidx.compose.runtime.*
+import com.webtoapp.core.crypto.SecureAssetLoader
 import com.webtoapp.core.logging.AppLogger
 import com.webtoapp.core.shell.ShellConfig
 import com.webtoapp.data.model.LrcData
 import com.webtoapp.data.model.LrcLine
+import java.io.File
 import kotlinx.coroutines.delay
 
 private val BGM_LRC_TIME_REGEX = Regex("""\[(\d{2}):(\d{2})\.(\d{2,3})](.*)""")
@@ -73,6 +75,35 @@ fun rememberBgmPlayerState(
     var currentLrcLineIndex by currentLrcLineIndexState
     val bgmCurrentPositionState = remember { mutableLongStateOf(0L) }
     var bgmCurrentPosition by bgmCurrentPositionState
+    val secureAssetLoader = remember(context) { SecureAssetLoader.getInstance(context) }
+    val bgmTempFiles = remember { mutableMapOf<String, File>() }
+
+    fun normalizeBgmAssetPath(path: String): String {
+        return path.removePrefix("assets/").removePrefix("asset:///")
+    }
+
+    fun setBgmDataSource(player: MediaPlayer, assetPath: String) {
+        val normalizedPath = normalizeBgmAssetPath(assetPath)
+        if (secureAssetLoader.isEncrypted(normalizedPath)) {
+            val cachedFile = bgmTempFiles[normalizedPath]
+            if (cachedFile != null && cachedFile.exists()) {
+                player.setDataSource(cachedFile.absolutePath)
+                return
+            }
+
+            val decryptedData = secureAssetLoader.loadAsset(normalizedPath)
+            val tempFile = File(context.cacheDir, "shell_bgm_${normalizedPath.hashCode()}.mp3")
+            tempFile.writeBytes(decryptedData)
+            bgmTempFiles[normalizedPath] = tempFile
+            player.setDataSource(tempFile.absolutePath)
+            AppLogger.d("ShellActivity", "BGM 解密加载成功: $normalizedPath (${decryptedData.size} bytes)")
+            return
+        }
+
+        val afd: AssetFileDescriptor = context.assets.openFd(normalizedPath)
+        player.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+        afd.close()
+    }
 
     fun loadLrcForCurrentBgm(bgmIndex: Int) {
         if (!config.bgmShowLyrics) {
@@ -84,8 +115,8 @@ fun rememberBgmPlayerState(
         val lrcPath = bgmItem.lrcAssetPath ?: return
 
         try {
-            val lrcAssetPath = lrcPath.removePrefix("assets/")
-            val lrcText = context.assets.open(lrcAssetPath).bufferedReader().readText()
+            val lrcAssetPath = normalizeBgmAssetPath(lrcPath)
+            val lrcText = secureAssetLoader.loadAssetAsString(lrcAssetPath)
             currentLrcData = parseLrcText(lrcText)
             currentLrcLineIndex = -1
             AppLogger.d("ShellActivity", "LRC 加载成功: $lrcPath, ${currentLrcData?.lines?.size} 行")
@@ -101,11 +132,8 @@ fun rememberBgmPlayerState(
 
                 val player = MediaPlayer()
                 val firstItem = config.bgmPlaylist.first()
-                val assetPath = firstItem.assetPath.removePrefix("assets/")
 
-                val afd: AssetFileDescriptor = context.assets.openFd(assetPath)
-                player.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-                afd.close()
+                setBgmDataSource(player, firstItem.assetPath)
 
                 player.setVolume(config.bgmVolume, config.bgmVolume)
                 player.isLooping = config.bgmPlayMode == "LOOP" && config.bgmPlaylist.size == 1
@@ -123,10 +151,7 @@ fun rememberBgmPlayerState(
                         try {
                             player.reset()
                             val nextItem = config.bgmPlaylist[nextIndex]
-                            val nextAssetPath = nextItem.assetPath.removePrefix("assets/")
-                            val nextAfd = context.assets.openFd(nextAssetPath)
-                            player.setDataSource(nextAfd.fileDescriptor, nextAfd.startOffset, nextAfd.length)
-                            nextAfd.close()
+                            setBgmDataSource(player, nextItem.assetPath)
                             player.prepare()
                             player.start()
 
@@ -188,6 +213,14 @@ fun rememberBgmPlayerState(
                 }
                 it.release()
             }
+            bgmTempFiles.values.forEach { file ->
+                try {
+                    if (file.exists()) file.delete()
+                } catch (e: Exception) {
+
+                }
+            }
+            bgmTempFiles.clear()
             bgmPlayer = null
         }
     }
