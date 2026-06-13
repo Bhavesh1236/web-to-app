@@ -161,7 +161,7 @@ The full app has many switches. The sections below group the important ones with
 - Toolbar, status bar, dark-mode status bar, navigation behavior, floating window mode, and long-press menu styles.
 - Announcement templates for launch, interval, and no-network moments.
 - Translation overlay with 20 target languages and Google, MyMemory, LibreTranslate, Lingva, or Auto engines.
-- Web Notification polyfill, URL polling foreground service, deep links, boot auto-start, scheduled launch, and background-run service.
+- Web Notification polyfill, scheduled and persistent notifications with progress updates, URL polling foreground service, deep links, boot auto-start, scheduled launch, and background-run service.
 - Per-app usage stats with Vico charts and URL health monitoring.
 
 </details>
