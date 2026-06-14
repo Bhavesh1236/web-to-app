@@ -1817,43 +1817,43 @@ fun BuildApkDialog(
     val scope = rememberCoroutineScope()
     val apkBuilder = remember { ApkBuilder(context) }
 
-    var isBuilding by remember { mutableStateOf(false) }
-    var progress by remember { mutableIntStateOf(0) }
-    var progressText by remember { mutableStateOf(Strings.preparing) }
-    var analysisReport by remember { mutableStateOf<com.webtoapp.core.apkbuilder.ApkAnalyzer.AnalysisReport?>(null) }
-    var buildFailureReport by remember { mutableStateOf<BuildFailureReport?>(null) }
-    var preflightReport by remember { mutableStateOf<ApkExportPreflightReport?>(null) }
+    var isBuilding by remember(webApp.id) { mutableStateOf(false) }
+    var progress by remember(webApp.id) { mutableIntStateOf(0) }
+    var progressText by remember(webApp.id) { mutableStateOf(Strings.preparing) }
+    var analysisReport by remember(webApp.id) { mutableStateOf<com.webtoapp.core.apkbuilder.ApkAnalyzer.AnalysisReport?>(null) }
+    var buildFailureReport by remember(webApp.id) { mutableStateOf<BuildFailureReport?>(null) }
+    var preflightReport by remember(webApp.id) { mutableStateOf<ApkExportPreflightReport?>(null) }
 
-    var encryptionConfig by remember {
+    var encryptionConfig by remember(webApp.id) {
         mutableStateOf(webApp.apkExportConfig?.encryptionConfig ?: com.webtoapp.data.model.ApkEncryptionConfig())
     }
 
-    var isolationConfig by remember {
+    var isolationConfig by remember(webApp.id) {
         mutableStateOf(resolveBuildIsolationDefault(webApp.apkExportConfig?.isolationConfig))
     }
 
-    var backgroundRunEnabled by remember {
+    var backgroundRunEnabled by remember(webApp.id) {
         mutableStateOf(webApp.apkExportConfig?.backgroundRunEnabled ?: false)
     }
-    var backgroundRunConfig by remember {
+    var backgroundRunConfig by remember(webApp.id) {
         mutableStateOf(webApp.apkExportConfig?.backgroundRunConfig ?: com.webtoapp.data.model.BackgroundRunExportConfig())
     }
 
-    var notificationEnabled by remember {
+    var notificationEnabled by remember(webApp.id) {
         mutableStateOf(webApp.apkExportConfig?.notificationEnabled ?: false)
     }
-    var notificationConfig by remember {
+    var notificationConfig by remember(webApp.id) {
         mutableStateOf(webApp.apkExportConfig?.notificationConfig ?: com.webtoapp.data.model.NotificationExportConfig())
     }
 
-    var dnsMode by remember {
+    var dnsMode by remember(webApp.id) {
         mutableStateOf(webApp.webViewConfig.dnsMode)
     }
-    var dnsConfig by remember {
+    var dnsConfig by remember(webApp.id) {
         mutableStateOf(webApp.webViewConfig.dnsConfig)
     }
 
-    var selectedEngineType by remember {
+    var selectedEngineType by remember(webApp.id) {
         mutableStateOf(webApp.apkExportConfig?.engineType ?: "SYSTEM_WEBVIEW")
     }
     val updatePackageName = webApp.apkExportConfig?.customPackageName
