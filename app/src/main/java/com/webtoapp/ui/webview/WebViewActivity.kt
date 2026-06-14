@@ -2349,13 +2349,6 @@ fun WebViewScreen(
     val showSlimToolbar = hideBrowserToolbar && toolbarCfg?.browserToolbarCustomized == true && hasAnyToolbarItem
     val shouldShowTopBar = showToolbarInPreview && (!hideBrowserToolbar || showSlimToolbar)
 
-    com.webtoapp.core.logging.AppLogger.d(
-        "WebViewToolbar",
-        "hideBrowserToolbar=$hideBrowserToolbar browserToolbarCustomized=${toolbarCfg?.browserToolbarCustomized} " +
-            "hasAnyToolbarItem=$hasAnyToolbarItem showSlimToolbar=$showSlimToolbar shouldShowTopBar=$shouldShowTopBar " +
-            "title=${toolbarCfg?.toolbarShowTitle} back=${toolbarCfg?.toolbarShowBack}"
-    )
-
     LaunchedEffect(hideToolbar) {
 
         onFullscreenModeChanged(hideToolbar)
@@ -2398,21 +2391,36 @@ fun WebViewScreen(
                         }
                     },
                     navigationIcon = {
-                        if (canGoBack) {
-                            IconButton(onClick = {
-                                (context as? AppCompatActivity)?.let { activity ->
-                                    ShellWebViewNavigation.goBackOrFinish(activity, webViewRef)
+                        if (isTestMode || webApp?.webViewConfig?.toolbarShowBack != false) {
+                            if (canGoBack) {
+                                IconButton(onClick = {
+                                    (context as? AppCompatActivity)?.let { activity ->
+                                        ShellWebViewNavigation.goBackOrFinish(activity, webViewRef)
+                                    }
+                                }) {
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                                 }
-                            }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
-                            }
-                        } else {
-                            IconButton(onClick = { (context as? AppCompatActivity)?.finish() }) {
-                                Icon(Icons.Default.Close, "Close")
+                            } else {
+                                IconButton(onClick = { (context as? AppCompatActivity)?.finish() }) {
+                                    Icon(Icons.Default.Close, "Close")
+                                }
                             }
                         }
                     },
                     actions = {
+                        if (isTestMode || webApp?.webViewConfig?.toolbarShowForward != false) {
+                            IconButton(
+                                onClick = { webViewRef?.goForward() },
+                                enabled = canGoForward
+                            ) {
+                                Icon(Icons.AutoMirrored.Filled.ArrowForward, "Forward")
+                            }
+                        }
+                        if (isTestMode || webApp?.webViewConfig?.toolbarShowRefresh != false) {
+                            IconButton(onClick = { webViewRef?.reload() }) {
+                                Icon(Icons.Default.Refresh, "Refresh")
+                            }
+                        }
 
                         IconButton(
                             onClick = { showConsole = !showConsole },
@@ -2430,58 +2438,6 @@ fun WebViewScreen(
                                     Icon(
                                         if (showConsole) Icons.Filled.Terminal else Icons.Outlined.Terminal,
                                         Strings.console
-                                    )
-                                }
-                            }
-                        }
-
-                        Box {
-                            var showToolbarMenu by remember { mutableStateOf(false) }
-                            IconButton(onClick = { showToolbarMenu = true }) {
-                                Icon(Icons.Default.MoreVert, "更多")
-                            }
-                            DropdownMenu(
-                                expanded = showToolbarMenu,
-                                onDismissRequest = { showToolbarMenu = false }
-                            ) {
-                                if (webApp?.webViewConfig?.toolbarShowBack != false) {
-                                    DropdownMenuItem(
-                                        text = { Text(Strings.goBack) },
-                                        onClick = {
-                                            showToolbarMenu = false
-                                            (context as? AppCompatActivity)?.let { activity ->
-                                                ShellWebViewNavigation.goBackOrFinish(activity, webViewRef)
-                                            }
-                                        },
-                                        enabled = canGoBack,
-                                        leadingIcon = {
-                                            Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-                                        }
-                                    )
-                                }
-                                if (webApp?.webViewConfig?.toolbarShowForward != false) {
-                                    DropdownMenuItem(
-                                        text = { Text(Strings.goForward) },
-                                        onClick = {
-                                            showToolbarMenu = false
-                                            webViewRef?.goForward()
-                                        },
-                                        enabled = canGoForward,
-                                        leadingIcon = {
-                                            Icon(Icons.AutoMirrored.Filled.ArrowForward, null)
-                                        }
-                                    )
-                                }
-                                if (webApp?.webViewConfig?.toolbarShowRefresh != false) {
-                                    DropdownMenuItem(
-                                        text = { Text(Strings.refresh) },
-                                        onClick = {
-                                            showToolbarMenu = false
-                                            webViewRef?.reload()
-                                        },
-                                        leadingIcon = {
-                                            Icon(Icons.Default.Refresh, null)
-                                        }
                                     )
                                 }
                             }
