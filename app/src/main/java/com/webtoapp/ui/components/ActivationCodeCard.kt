@@ -101,12 +101,9 @@ fun ActivationCodeCard(
     var showBatchImportDialog by remember { mutableStateOf(false) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     var showRemoteGuideDialog by remember { mutableStateOf(false) }
-    var showCustomTextSection by remember { mutableStateOf(
-        dialogConfig.title.isNotBlank() || dialogConfig.subtitle.isNotBlank() ||
-        dialogConfig.inputLabel.isNotBlank() || dialogConfig.buttonText.isNotBlank()
-    ) }
-    var showRemoteSection by remember { mutableStateOf(remoteConfig.enabled) }
-    var showCodesSection by remember { mutableStateOf(false) }
+    var showCustomTextSection by remember { mutableStateOf(false) }
+    var showRemoteSection by remember { mutableStateOf(false) }
+    var showCodesSection by remember { mutableStateOf(true) }
     val clipboardManager = LocalClipboardManager.current
     val snackbarHostState = remember { SnackbarHostState() }
     var showCopiedSnackbar by remember { mutableStateOf(false) }
@@ -168,167 +165,14 @@ fun ActivationCodeCard(
                 enter = CardExpandTransition,
                 exit = CardCollapseTransition
             ) {
-              Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+              Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
                     text = Strings.activationCodeHint,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(weight = 1f, fill = true)) {
-                        Text(
-                            text = Strings.requireEveryLaunch,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = if (requireEveryTime) Strings.requireEveryLaunchHintOn else Strings.requireEveryLaunchHintOff,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    WtaSwitch(
-                        checked = requireEveryTime,
-                        onCheckedChange = onRequireEveryTimeChange
-                    )
-                }
-                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { showRemoteSection = !showRemoteSection },
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(weight = 1f, fill = true)) {
-                        Text(
-                            text = Strings.remoteActivationTitle,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        val remoteSubtitle = if (remoteConfig.enabled) {
-                            val rawUrl = remoteConfig.verifyUrl.trim()
-                            val displayUrl = if (rawUrl.length > 30) rawUrl.take(30) + "…" else rawUrl
-                            Strings.activationSectionRemoteEnabled(displayUrl)
-                        } else {
-                            Strings.activationSectionRemoteDisabled
-                        }
-                        Text(
-                            text = remoteSubtitle,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    val remoteArrowRotation by animateFloatAsState(
-                        targetValue = if (showRemoteSection) 180f else 0f,
-                        animationSpec = spring(dampingRatio = 0.75f, stiffness = Spring.StiffnessMediumLow),
-                        label = "remoteArrowRotation"
-                    )
-                    Icon(
-                        imageVector = Icons.Default.ExpandMore,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.graphicsLayer { rotationZ = remoteArrowRotation }
-                    )
-                }
-
-                AnimatedVisibility(
-                    visible = showRemoteSection,
-                    enter = CardExpandTransition,
-                    exit = CardCollapseTransition
-                ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        RemoteActivationSection(
-                            remoteConfig = remoteConfig,
-                            onRemoteConfigChange = onRemoteConfigChange,
-                            onShowGuide = { showRemoteGuideDialog = true }
-                        )
-                    }
-                }
-
-                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { showCustomTextSection = !showCustomTextSection },
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(weight = 1f, fill = true)) {
-                        Text(
-                            text = Strings.customDialogText,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = Strings.customDialogTextHint,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    val customArrowRotation by animateFloatAsState(
-                        targetValue = if (showCustomTextSection) 180f else 0f,
-                        animationSpec = spring(dampingRatio = 0.75f, stiffness = Spring.StiffnessMediumLow),
-                        label = "customArrowRotation"
-                    )
-                    Icon(
-                        imageVector = Icons.Default.ExpandMore,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.graphicsLayer { rotationZ = customArrowRotation }
-                    )
-                }
-
-                AnimatedVisibility(
-                    visible = showCustomTextSection,
-                    enter = CardExpandTransition,
-                    exit = CardCollapseTransition
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        PremiumTextField(
-                            value = dialogConfig.title,
-                            onValueChange = { onDialogConfigChange(dialogConfig.copy(title = it)) },
-                            label = { Text(Strings.dialogTitle) },
-                            placeholder = { Text(Strings.dialogTitleHint) },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        PremiumTextField(
-                            value = dialogConfig.subtitle,
-                            onValueChange = { onDialogConfigChange(dialogConfig.copy(subtitle = it)) },
-                            label = { Text(Strings.dialogSubtitle) },
-                            placeholder = { Text(Strings.dialogSubtitleHint) },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        PremiumTextField(
-                            value = dialogConfig.inputLabel,
-                            onValueChange = { onDialogConfigChange(dialogConfig.copy(inputLabel = it)) },
-                            label = { Text(Strings.dialogInputLabel) },
-                            placeholder = { Text(Strings.dialogInputLabelHint) },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        PremiumTextField(
-                            value = dialogConfig.buttonText,
-                            onValueChange = { onDialogConfigChange(dialogConfig.copy(buttonText = it)) },
-                            label = { Text(Strings.dialogButtonText) },
-                            placeholder = { Text(Strings.dialogButtonTextHint) },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-
-                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
 
                 Row(
                     modifier = Modifier
@@ -371,9 +215,7 @@ fun ActivationCodeCard(
                     enter = CardExpandTransition,
                     exit = CardCollapseTransition
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Spacer(modifier = Modifier.height(4.dp))
-
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -458,6 +300,159 @@ fun ActivationCodeCard(
 
                             EmptyActivationCodesState()
                         }
+                    }
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(weight = 1f, fill = true)) {
+                        Text(
+                            text = Strings.requireEveryLaunch,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = if (requireEveryTime) Strings.requireEveryLaunchHintOn else Strings.requireEveryLaunchHintOff,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    WtaSwitch(
+                        checked = requireEveryTime,
+                        onCheckedChange = onRequireEveryTimeChange
+                    )
+                }
+                HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showRemoteSection = !showRemoteSection },
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(weight = 1f, fill = true)) {
+                        Text(
+                            text = Strings.remoteActivationTitle,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        val remoteSubtitle = if (remoteConfig.enabled) {
+                            val rawUrl = remoteConfig.verifyUrl.trim()
+                            val displayUrl = if (rawUrl.length > 30) rawUrl.take(30) + "…" else rawUrl
+                            Strings.activationSectionRemoteEnabled(displayUrl)
+                        } else {
+                            Strings.activationSectionRemoteDisabled
+                        }
+                        Text(
+                            text = remoteSubtitle,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    val remoteArrowRotation by animateFloatAsState(
+                        targetValue = if (showRemoteSection) 180f else 0f,
+                        animationSpec = spring(dampingRatio = 0.75f, stiffness = Spring.StiffnessMediumLow),
+                        label = "remoteArrowRotation"
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ExpandMore,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.graphicsLayer { rotationZ = remoteArrowRotation }
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = showRemoteSection,
+                    enter = CardExpandTransition,
+                    exit = CardCollapseTransition
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        RemoteActivationSection(
+                            remoteConfig = remoteConfig,
+                            onRemoteConfigChange = onRemoteConfigChange,
+                            onShowGuide = { showRemoteGuideDialog = true }
+                        )
+                    }
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showCustomTextSection = !showCustomTextSection },
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(weight = 1f, fill = true)) {
+                        Text(
+                            text = Strings.customDialogText,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = Strings.customDialogTextHint,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    val customArrowRotation by animateFloatAsState(
+                        targetValue = if (showCustomTextSection) 180f else 0f,
+                        animationSpec = spring(dampingRatio = 0.75f, stiffness = Spring.StiffnessMediumLow),
+                        label = "customArrowRotation"
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ExpandMore,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.graphicsLayer { rotationZ = customArrowRotation }
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = showCustomTextSection,
+                    enter = CardExpandTransition,
+                    exit = CardCollapseTransition
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        PremiumTextField(
+                            value = dialogConfig.title,
+                            onValueChange = { onDialogConfigChange(dialogConfig.copy(title = it)) },
+                            label = { Text(Strings.dialogTitle) },
+                            placeholder = { Text(Strings.dialogTitleHint) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        PremiumTextField(
+                            value = dialogConfig.subtitle,
+                            onValueChange = { onDialogConfigChange(dialogConfig.copy(subtitle = it)) },
+                            label = { Text(Strings.dialogSubtitle) },
+                            placeholder = { Text(Strings.dialogSubtitleHint) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        PremiumTextField(
+                            value = dialogConfig.inputLabel,
+                            onValueChange = { onDialogConfigChange(dialogConfig.copy(inputLabel = it)) },
+                            label = { Text(Strings.dialogInputLabel) },
+                            placeholder = { Text(Strings.dialogInputLabelHint) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        PremiumTextField(
+                            value = dialogConfig.buttonText,
+                            onValueChange = { onDialogConfigChange(dialogConfig.copy(buttonText = it)) },
+                            label = { Text(Strings.dialogButtonText) },
+                            placeholder = { Text(Strings.dialogButtonTextHint) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
                 SnackbarHost(
