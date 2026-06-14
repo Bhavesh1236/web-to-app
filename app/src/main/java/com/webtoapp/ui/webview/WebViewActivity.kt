@@ -895,8 +895,7 @@ fun WebViewScreen(
         }
     }
 
-
-
+    LaunchedEffect(appId, directUrl, testUrl, previewApp) {
         if (isTestMode) {
             isActivated = true
             isActivationChecked = true
